@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: flask
-        image: becloudready/my-flask-app:latest  # Replace with your Docker Hub image name.
+        image: becloudready/my-flask-app:latest  # You need to build and push this image
         ports:
         - containerPort: 5000
         env:
