@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: flask-config
+  namespace: flask-app
+data:
+  APP_ENV: production
+  DEBUG: "false"
+  MYSQL_DB: flaskdb
+  MYSQL_HOST: mysql-svc.mysql.svc.cluster.local

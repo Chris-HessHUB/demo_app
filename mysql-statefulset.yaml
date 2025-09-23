@@ -1,0 +1,58 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mysql-statefulset
+  namespace: mysql
+  labels:
+    app: mysql
+spec:
+  serviceName: "mysql-svc"
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mysql
+  template:
+    metadata:
+      labels:
+        app: mysql
+    spec:
+      initContainers:
+      - name: init-clear-mysql-data
+        image: busybox
+        command: ["sh", "-c", "rm -rf /var/lib/mysql/*"]
+        volumeMounts:
+        - name: mysql-persistent-storage
+          mountPath: /var/lib/mysql
+      containers:
+      - name: mysql
+        image: mysql:5.7
+        ports:
+        - containerPort: 3306
+          name: mysql
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          value: rootpassword   # For production, use a Secret instead.
+        - name: MYSQL_DATABASE
+          value: flaskdb
+        - name: MYSQL_USER
+          value: flaskuser
+        - name: MYSQL_PASSWORD
+          value: flaskpass
+        volumeMounts:
+        - name: mysql-persistent-storage
+          mountPath: /var/lib/mysql
+        - name: initdb
+          mountPath: /docker-entrypoint-initdb.d
+      volumes:
+      - name: initdb
+        configMap:
+          name: mysql-initdb
+  volumeClaimTemplates:
+  - metadata:
+      name: mysql-persistent-storage
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 1Gi
+      storageClassName: do-block-storage
